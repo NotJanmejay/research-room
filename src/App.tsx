@@ -148,7 +148,7 @@ function App() {
             />
 
             <button
-              className="bg-secondary hover:bg-opacity-85 transition-colors text-white mt-4 rounded-full py-3 font-bold"
+              className="bg-secondary hover:bg-opacity-95 transition-colors text-white mt-4 rounded-full py-3 font-bold"
               onClick={() => setIsOpen(true)}
             >
               Generate Report
@@ -158,7 +158,9 @@ function App() {
       </main>
 
       <Drawer isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <div className="text-primary font-bold text-2xl">Generating Report</div>
+        <div className="text-primary font-bold text-2xl mt-2">
+          Generating the report
+        </div>
         <div className="mt-10">
           <Skeleton />
           <Skeleton className="w-96 h-20" />
@@ -169,10 +171,10 @@ function App() {
           <Skeleton className="w-[600px] h-20" />
         </div>
         <button
-          className="bg-red-500 text-white font-bold px-4 py-2 rounded-full absolute mt-2"
+          className="border font-bold px-8 py-2 rounded-full absolute mt-4 hover:bg-[#f1f1f1] transition-colors"
           onClick={() => setIsOpen(false)}
         >
-          Cancel
+          Stop Generating
         </button>
       </Drawer>
     </main>
