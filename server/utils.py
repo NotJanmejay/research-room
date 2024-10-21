@@ -4,6 +4,12 @@ from datetime import datetime
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_community.utilities import GoogleSerperAPIWrapper
+import re
+from docx import Document
+from datetime import datetime
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+from docx2pdf import convert
 
 
 # Load environment variables
@@ -25,7 +31,7 @@ def setup_logging(log_filename="logs/report_generation.log"):
 
 
 # Initialize ChatOpenAI model
-def initialize_model(model_id="gpt-4o"):
+def initialize_model(model_id="gpt-4o-mini"):
     try:
         model = ChatOpenAI(model=model_id)
         logging.info("Initialized ChatOpenAI model.")
@@ -147,8 +153,127 @@ def save_report(content, domain, country):
         os.makedirs("reports")
 
     with open(filename, "w", encoding="utf-8") as file:
-        file.write(f"# Report Generated on: {current_datetime}\n\n")
         file.write(content)
 
     logging.info("Report generated successfully: %s", filename)
     return filename
+
+
+
+def convert_markdown_to_docx(markdown_content, file_name):
+    """Convert markdown content to a DOCX file with proper formatting."""
+    # Create a 'report' folder if it doesn't exist
+    report_folder = 'report'
+    os.makedirs(report_folder, exist_ok=True)
+
+    # Remove 'reports/' from file_name and .md from file_name
+    base_file_name = file_name.replace('reports/', '').replace('.md', '')  
+    base_output_docx = os.path.join(report_folder, base_file_name)
+
+    # Append timestamp to filename if it already exists
+    output_docx = f"{base_output_docx}.docx"
+    if os.path.exists(output_docx):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_docx = f"{base_output_docx}_{timestamp}.docx"
+
+    doc = Document()
+
+    # Split the markdown content into lines
+    lines = markdown_content.splitlines()
+
+    for line in lines:
+        line = line.strip()
+
+        # Handle headers and remove asterisks from them
+        if line.startswith('# '):
+            doc.add_heading(line[2:].replace('*', '').strip(), level=1)
+        elif line.startswith('## '):
+            doc.add_heading(line[3:].replace('*', '').strip(), level=2)
+        elif line.startswith('### '):
+            doc.add_heading(line[4:].replace('*', '').strip(), level=3)
+        elif line.startswith('- '):
+            bullet_text = line[2:]
+
+            # Make text bold if it contains asterisks
+            if '*' in bullet_text:
+                paragraph = doc.add_paragraph(style='List Bullet')
+                parts = bullet_text.split('**')
+                for i, part in enumerate(parts):
+                    run = paragraph.add_run(part.strip())
+                    run.bold = (i % 2 == 1)
+            else:
+                # Check if the bullet point contains a hyperlink
+                hyperlink_match = re.match(r'\[(.*?)\]\((https?://[^\s]+)\)', bullet_text)
+                if hyperlink_match:
+                    paragraph = doc.add_paragraph(style='List Bullet')
+                    link_text, url = hyperlink_match.groups()
+                    add_hyperlink(paragraph, f"{link_text} ({url})", url)
+                else:
+                    doc.add_paragraph(bullet_text, style='List Bullet')
+        elif '**' in line:  # Handle bold text
+            paragraph = doc.add_paragraph()
+            parts = line.split('**')
+            for i, part in enumerate(parts):
+                run = paragraph.add_run(part.strip())
+                run.bold = (i % 2 == 1)
+        elif line:  # Regular paragraph
+            # Convert URLs to hyperlinks
+            paragraph = doc.add_paragraph()
+            url_match = re.search(r'(https?://[^\s]+)', line)
+            if url_match:
+                url = url_match.group(0)
+                add_hyperlink(paragraph, url, url)
+            else:
+                paragraph.add_run(line)
+
+    # Save the document
+    doc.save(output_docx)
+    return output_docx
+
+def add_hyperlink(paragraph, text, url):
+    """Add a hyperlink to a paragraph with blue color and underlined text."""
+    part = paragraph.part
+    r_id = part.relate_to(
+        url, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink', is_external=True
+    )
+
+    hyperlink = OxmlElement('w:hyperlink')
+    hyperlink.set(qn('r:id'), r_id)
+
+    run = OxmlElement('w:r')
+    rPr = OxmlElement('w:rPr')
+
+    # Set hyperlink style: blue color and underlined
+    color = OxmlElement('w:color')
+    color.set(qn('w:val'), '0000FF')  # Blue color
+
+    underline = OxmlElement('w:u')
+    underline.set(qn('w:val'), 'single')  # Underlined text
+
+    rPr.extend([color, underline])
+    run.append(rPr)
+
+    text_element = OxmlElement('w:t')
+    text_element.text = text
+    run.append(text_element)
+    hyperlink.append(run)
+    paragraph._element.append(hyperlink)
+
+
+
+# WordFile to PDF
+
+def convert_word_to_pdf(word_file_path):
+    """Convert a Word document to PDF and store it in a 'report_pdfs' folder."""
+    # Create the 'report_pdfs' folder if it doesn't exist
+    pdf_folder = 'report_pdfs'
+    os.makedirs(pdf_folder, exist_ok=True)
+
+    # Define the PDF file path
+    pdf_path = os.path.join(pdf_folder, os.path.basename(word_file_path).replace('.docx', '.pdf'))
+
+    # Convert the Word document to PDF
+    convert(word_file_path, pdf_path)
+
+    return pdf_path
+

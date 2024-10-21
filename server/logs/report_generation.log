@@ -38,3 +38,94 @@
 2024-10-21 14:30:07,715 - INFO - Generating report with the model.
 2024-10-21 14:30:38,070 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
 2024-10-21 14:30:38,137 - INFO - Report generated successfully: reports/output_Healthcare_India_20241021_143038.md
+2024-10-21 17:44:45,754 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 17:44:45,754 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 17:44:45,787 - INFO - Initialized ChatOpenAI model.
+2024-10-21 17:44:45,787 - INFO - Searching for top companies in the Healthcare sector in India.
+2024-10-21 17:44:48,356 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 17:44:48,387 - INFO - Fetching financial information for Apollo Hospitals.
+2024-10-21 17:44:49,689 - INFO - Fetching financial information for Max Healthcare.
+2024-10-21 17:44:50,771 - INFO - Fetching financial information for Global Health.
+2024-10-21 17:44:52,083 - INFO - Fetching financial information for Fortis Healthcare.
+2024-10-21 17:44:53,039 - INFO - Fetching financial information for Narayana Hrudaya.
+2024-10-21 17:45:02,685 - INFO - Generating report with the model.
+2024-10-21 17:45:32,123 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 17:45:32,376 - INFO - Report generated successfully: reports/output_Healthcare_India_20241021_174532.md
+2024-10-21 17:57:45,266 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 17:57:45,266 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 17:57:45,293 - INFO - Initialized ChatOpenAI model.
+2024-10-21 17:57:45,293 - INFO - Searching for top companies in the Healthcare sector in India.
+2024-10-21 17:57:47,993 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 17:57:48,025 - INFO - Fetching financial information for Apollo Hospitals.
+2024-10-21 17:57:49,202 - INFO - Fetching financial information for Max Healthcare.
+2024-10-21 17:57:50,205 - INFO - Fetching financial information for Global Health.
+2024-10-21 17:57:51,365 - INFO - Fetching financial information for Fortis Healthcare.
+2024-10-21 17:57:52,463 - INFO - Fetching financial information for Narayana Hrudaya.
+2024-10-21 17:58:01,671 - INFO - Generating report with the model.
+2024-10-21 17:58:42,986 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 17:58:43,007 - INFO - Report generated successfully: reports/output_Healthcare_India_20241021_175843.md
+2024-10-21 18:39:21,137 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 18:39:21,137 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 18:39:21,168 - INFO - Initialized ChatOpenAI model.
+2024-10-21 18:39:21,168 - INFO - Searching for top companies in the Healthcare sector in India.
+2024-10-21 18:39:25,596 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 18:39:25,596 - INFO - Fetching financial information for Apollo Hospitals.
+2024-10-21 18:39:28,606 - INFO - Fetching financial information for Max Healthcare.
+2024-10-21 18:39:29,595 - INFO - Fetching financial information for Global Health.
+2024-10-21 18:39:30,723 - INFO - Fetching financial information for Fortis Healthcare.
+2024-10-21 18:39:31,633 - INFO - Fetching financial information for Narayana Hrudaya.
+2024-10-21 18:39:40,634 - INFO - Generating report with the model.
+2024-10-21 18:40:11,429 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 18:40:11,728 - INFO - Report generated successfully: reports/output_Healthcare_India_20241021_184011.md
+2024-10-21 18:49:54,024 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 18:49:54,024 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 18:49:54,055 - INFO - Initialized ChatOpenAI model.
+2024-10-21 18:49:54,055 - INFO - Searching for top companies in the Healthcare sector in India.
+2024-10-21 18:49:56,533 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 18:49:56,549 - INFO - Fetching financial information for Apollo Hospitals.
+2024-10-21 18:49:57,992 - INFO - Fetching financial information for Max Healthcare.
+2024-10-21 18:49:59,294 - INFO - Fetching financial information for Global Health.
+2024-10-21 18:50:00,501 - INFO - Fetching financial information for Fortis Healthcare.
+2024-10-21 18:50:01,723 - INFO - Fetching financial information for Narayana Hrudaya.
+2024-10-21 18:50:14,644 - INFO - Generating report with the model.
+2024-10-21 18:50:51,698 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 18:50:51,918 - INFO - Report generated successfully: reports/output_Healthcare_India_20241021_185051.md
+2024-10-21 18:55:40,043 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 18:55:40,043 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 18:55:40,074 - INFO - Initialized ChatOpenAI model.
+2024-10-21 18:55:40,074 - INFO - Searching for top companies in the Healthcare sector in India.
+2024-10-21 18:55:42,522 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 18:55:42,553 - INFO - Fetching financial information for Apollo Hospitals.
+2024-10-21 18:55:43,512 - INFO - Fetching financial information for Max Healthcare.
+2024-10-21 18:55:44,998 - INFO - Fetching financial information for Global Health.
+2024-10-21 18:55:46,143 - INFO - Fetching financial information for Fortis Healthcare.
+2024-10-21 18:55:47,358 - INFO - Fetching financial information for Narayana Hrudaya.
+2024-10-21 18:55:56,728 - INFO - Generating report with the model.
+2024-10-21 18:56:30,252 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 18:56:30,252 - INFO - Report generated successfully: reports/output_Healthcare_India_20241021_185630.md
+2024-10-21 19:12:46,914 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 19:12:46,914 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 19:12:46,930 - INFO - Initialized ChatOpenAI model.
+2024-10-21 19:12:46,930 - INFO - Searching for top companies in the Healthcare sector in India.
+2024-10-21 19:12:48,962 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 19:12:49,010 - INFO - Fetching financial information for Apollo Hospitals.
+2024-10-21 19:12:49,841 - INFO - Fetching financial information for Max Healthcare.
+2024-10-21 19:12:50,880 - INFO - Fetching financial information for Global Health.
+2024-10-21 19:12:52,288 - INFO - Fetching financial information for Fortis Healthcare.
+2024-10-21 19:12:53,120 - INFO - Fetching financial information for Narayana Hrudaya.
+2024-10-21 19:13:02,119 - INFO - Generating report with the model.
+2024-10-21 19:13:40,882 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 19:13:40,891 - INFO - Report generated successfully: reports/output_Healthcare_India_20241021_191340.md
+2024-10-21 19:48:17,847 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 19:48:17,847 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 19:48:17,878 - INFO - Initialized ChatOpenAI model.
+2024-10-21 19:48:17,878 - INFO - Searching for top companies in the Healthcare sector in India.
+2024-10-21 19:48:19,950 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 19:48:19,981 - INFO - Fetching financial information for Apollo Hospitals.
+2024-10-21 19:48:21,108 - INFO - Fetching financial information for Max Healthcare.
+2024-10-21 19:48:22,442 - INFO - Fetching financial information for Global Health.
+2024-10-21 19:48:25,775 - INFO - Fetching financial information for Fortis Healthcare.
+2024-10-21 19:48:27,815 - INFO - Fetching financial information for Narayana Hrudaya.
+2024-10-21 19:48:38,575 - INFO - Generating report with the model.
+2024-10-21 19:49:23,040 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 19:49:23,303 - INFO - Report generated successfully: reports/output_Healthcare_India_20241021_194923.md

@@ -9,6 +9,9 @@ from utils import (
     fetch_latest_news,
     generate_report,
     save_report,
+    convert_markdown_to_docx,
+    add_hyperlink,
+    convert_word_to_pdf
 )
 from ResearchRoomPrompt import template
 
@@ -40,8 +43,13 @@ def main(domain, country):
     )
 
     # Save the report to a file
-    save_report(report_content, domain, country)
+    filename = save_report(report_content, domain, country)
 
+    # Save the report in word file 
+    word_file = convert_markdown_to_docx(report_content,file_name = filename)
+
+    # Save the report in PDF File
+    convert_word_to_pdf(word_file)
 
 if __name__ == "__main__":
     main("Healthcare", "India")
