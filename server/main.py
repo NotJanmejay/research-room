@@ -1,3 +1,4 @@
+import asyncio
 from utils import (
     load_env,
     setup_logging,
@@ -26,13 +27,14 @@ def main(domain, country):
     if not search or not model or not search_news:
         return  # Exit if initialization fails
 
-    # Fetch company details and financials
+    # Fetch company details and financials concurrently
     companies = fetch_company_details(domain, country, search, model)
     company_info = fetch_company_financials(companies, search)
 
-    # Fetch market insights and news
-    insights = fetch_market_insights(domain, country, search)
-    latest_news = fetch_latest_news(domain, country, search_news)
+    # Fetch market insights and news concurrently
+    insights_task = fetch_market_insights(domain, country, search)
+    news_task = fetch_latest_news(domain, country, search_news)
+    insights, latest_news = (insights_task, news_task)
 
     # Generate report content
     report_content = generate_report(
@@ -40,8 +42,9 @@ def main(domain, country):
     )
 
     # Save the report to a file
-    save_report(report_content, domain, country)
+    file_name = save_report(report_content, domain, country)
+    return file_name
 
 
 if __name__ == "__main__":
-    main("Healthcare", "India")
+    main("Fashion", "India")
