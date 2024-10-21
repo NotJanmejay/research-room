@@ -4,12 +4,6 @@ from datetime import datetime
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_community.utilities import GoogleSerperAPIWrapper
-import re
-from docx import Document
-from datetime import datetime
-from docx.oxml.ns import qn
-from docx.oxml import OxmlElement
-from docx2pdf import convert
 
 
 # Load environment variables
@@ -18,7 +12,6 @@ def load_env():
     load_dotenv()
 
 
-# Set up logging
 def setup_logging(log_filename="logs/report_generation.log"):
     if not os.path.exists("logs"):
         os.makedirs("logs")
@@ -42,7 +35,6 @@ def initialize_model(model_id="gpt-4o-mini"):
         return None
 
 
-# Initialize GoogleSerperAPIWrapper
 def initialize_search(api_type="search"):
     try:
         if api_type == "news":
@@ -57,7 +49,6 @@ def initialize_search(api_type="search"):
         return None
 
 
-# Fetch company details
 def fetch_company_details(domain, country, search, model):
     logging.info("Searching for top companies in the %s sector in %s.", domain, country)
     search_for_companies = search.results(
@@ -71,7 +62,6 @@ def fetch_company_details(domain, country, search, model):
     return companies.content.split(", ")
 
 
-# Fetch company financials
 def fetch_company_financials(companies, search):
     companies_query = []
 
@@ -85,7 +75,6 @@ def fetch_company_financials(companies, search):
     return companies_query
 
 
-# Fetch market insights
 def fetch_market_insights(domain, country, search):
     prompts = {
         "market_size": f"Provide information about the current market size, historical trends, and future growth prospects of {domain} domain in {country}",
@@ -95,28 +84,32 @@ def fetch_market_insights(domain, country, search):
         "regulatory_changes": f"Provide information about recent regulatory changes that took place in the field of {domain} in {country}",
         "barrier_to_entries": f"Provide information about high potential challenges or barriers to entries in the field of {domain} in {country}",
     }
+    results = [
+        search.results(prompts["market_size"]),
+        search.results(prompts["market_trends"]),
+        search.results(prompts["technological_advancement"]),
+        search.results(prompts["consumer_preferences"]),
+        search.results(prompts["regulatory_changes"]),
+        search.results(prompts["barrier_to_entries"]),
+    ]
 
     insights = {
-        "market_size": search.results(prompts["market_size"]),
-        "market_trends": search.results(prompts["market_trends"]),
-        "technological_advancement": search.results(
-            prompts["technological_advancement"]
-        ),
-        "consumer_preferences": search.results(prompts["consumer_preferences"]),
-        "regulatory_changes": search.results(prompts["regulatory_changes"]),
-        "barrier_to_entry": search.results(prompts["barrier_to_entries"]),
+        "market_size": results[0],
+        "market_trends": results[1],
+        "technological_advancement": results[2],
+        "consumer_preferences": results[3],
+        "regulatory_changes": results[4],
+        "barrier_to_entry": results[5],
     }
 
     return insights
 
 
-# Fetch latest news
 def fetch_latest_news(domain, country, search_news):
     latest_news = search_news.results(f"{domain} sector in {country}")
     return latest_news
 
 
-# Generate report
 def generate_report(
     domain, country, model, template, company_info, insights, latest_news
 ):
@@ -144,10 +137,9 @@ def generate_report(
     return report.content
 
 
-# Save report to file
 def save_report(content, domain, country):
     current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    filename = f"reports/output_{domain}_{country}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+    filename = f"reports/output_{domain}_{country}.md"
 
     if not os.path.exists("reports"):
         os.makedirs("reports")
