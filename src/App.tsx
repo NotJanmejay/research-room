@@ -7,7 +7,7 @@ import { MdHistory } from "react-icons/md";
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-full bg-primary/90 hover:bg-primary cursor-pointer transition-colors text-white px-4 py-2 font-medium">
+    <div className="rounded-full border px-6 cursor-pointer transition-colors text-secondary py-3 font-medium">
       {children}
     </div>
   );
@@ -73,75 +73,82 @@ function App() {
     "Lorem ipsum john doe hello world",
     "meow meow meow",
   ]);
-  const [docs, setDocs] = React.useState<any>(["In father we trust", "Meow Meow Meow"]);
+  const [docs, setDocs] = React.useState<any>([
+    "In father we trust",
+    "Meow Meow Meow",
+  ]);
 
   return (
     <main className="h-screen grid grid-cols-[14vw_1fr] font-mont relative">
-      <aside className="grid grid-rows-[92vh_1fr] border-l">
+      <aside className="grid grid-rows-[90vh_1fr] border-l">
         <main className="flex flex-col px-8 pt-8 border-r">
           <img src="/msbc-logo.png" alt="msbc-logo" className="w-44" />
-          <div className="mt-8 font-medium text-xl flex items-center gap-2">
+          <div className="mt-8 font-semibold text-xl flex items-center gap-2">
             Reports
-            <IoDocument />
           </div>
-          <div className="mt-8 font-bold opacity-75 flex items-center gap-2">
-            Pinned <LuPin />
+          <div className="mt-8 font-bold opacity-75 flex items-center gap-2 mb-2">
+            <LuPin /> Pinned
           </div>
-          {
-            pinnedDocs.map((p: any) => (<div className="opacity-80 hover:opacity-100 transition-opacity cursor-pointer truncate w-[10vw]">{p}</div>))
-          }
-          <div className="mt-8 font-bold opacity-75 flex items-center gap-2">
-            History <MdHistory />
+          {pinnedDocs.map((p: any) => (
+            <div className="transition-all cursor-pointer truncate text-xs w-[10vw] bg-[#f8f8f8] hover:bg-[#e2e2e2] mb-2 px-2.5 py-2 ">
+              {p}
+            </div>
+          ))}
+          <div className="mt-8 font-bold opacity-75 flex items-center gap-2 mb-2">
+            <MdHistory /> History
           </div>
-          {
-            docs.map((p: any) => (<div className="opacity-80 hover:opacity-100 transition-opacity cursor-pointer truncate w-[10vw]">{p}</div>))
-          }
+          {docs.map((p: any) => (
+            <div className=" transition-all cursor-pointer truncate text-xs w-[10vw] bg-[#f8f8f8] hover:bg-[#e2e2e2] mb-2 px-2.5 py-2">
+              {p}
+            </div>
+          ))}
         </main>
-        <main className=" border-t border-r flex justify-center items-center">
-          <div className="bg-primary w-56 p-2 rounded-lg text-white flex items-center gap-4">
-            <div className="bg-white size-8 rounded-full"></div>
-            <p className="font-medium">Janmejay Chat</p>
+        <main className="border-r flex justify-center items-center">
+          <div className="bg-secondary bg-opacity-10 w-56 p-2 rounded-lg text-white flex items-center gap-4">
+            <div className="size-8 rounded-full bg-secondary"></div>
+            <div>
+              <p className="font-semibold text-black">John Doe</p>
+              <p className="text-xs text-black">Manager</p>
+            </div>
           </div>
         </main>
       </aside>
       <main className="grid grid-rows-[8vh_1fr]">
-        <div className="border-b flex items-center pl-10">
-          <p className="text-primary font-bold text-3xl">Research Room</p>
-        </div>
-        <div className="pl-10 pt-10 flex flex-col">
-          <h1 className="text-5xl font-bold text-primary">Good Morning!</h1>
-          <p className="mt-3 text-2xl font-medium opacity-70">
-            Janmejay Chatterjee
-          </p>
+        <div className="pl-10 pt-10 flex flex-col mt-20">
+          <h1 className="text-5xl font-extrabold text-primary">
+            Good Afternoon!
+          </h1>
+          <p className="mt-3 text-2xl font-medium opacity-70">John Doe</p>
 
-          <h2 className="mt-16 text-primary font-bold text-3xl">Reports</h2>
-          <div className="flex gap-4 mt-6">
+          <h2 className="mt-16 text-xl font-medium">Reports</h2>
+          <div className="flex gap-4 mt-2">
             <Chip>Healthcare</Chip>
             <Chip>Finance</Chip>
             <Chip>Clothing</Chip>
             <Chip>Crypto</Chip>
           </div>
 
-          <h2 className="mt-16 text-primary font-bold text-3xl">Generate Report</h2>
-          <div className="flex mt-6 flex-col border w-[20vw] px-8 py-4 rounded-md">
-
-            <label className="text-xl font-bold text-primary">Industry</label>
+          <div className="flex mt-8 flex-col border w-fit px-8 py-8  rounded-3xl">
+            <h2 className=" text-[#212121] text-2xl">Generate a report</h2>
+            <label className="text-sm font-bold text-secondary mt-4">
+              Industry
+            </label>
             <input
               type="text"
-              className="border w-full px-4 py-2 rounded-md mt-2 focus:outline-primary"
+              className="border w-[30vw] px-4 py-2 rounded-md mt-2 focus:outline-primary"
               placeholder="Healthcare"
             />
-            <label className="text-xl font-bold text-primary mt-2">
+            <label className="text-sm font-bold text-secondary mt-4">
               Country
             </label>
             <input
               type="text"
-              className="border w-full px-4 py-2 rounded-md mt-2 focus:outline-primary"
+              className="border w-[30vw] px-4 py-2 rounded-md mt-2 focus:outline-primary"
               placeholder="UAE"
             />
 
             <button
-              className="bg-primary/90 hover:bg-primary transition-colors text-white mt-4 rounded-full py-3 font-bold"
+              className="bg-secondary hover:bg-opacity-85 transition-colors text-white mt-4 rounded-full py-3 font-bold"
               onClick={() => setIsOpen(true)}
             >
               Generate Report
