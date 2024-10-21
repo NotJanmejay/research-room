@@ -1,0 +1,40 @@
+2024-10-21 14:07:28,449 - INFO - Report generation started.
+2024-10-21 14:07:28,449 - INFO - Initialized GoogleSerperAPIWrapper.
+2024-10-21 14:07:28,745 - INFO - Initialized ChatOpenAI model.
+2024-10-21 14:07:28,745 - INFO - Searching for top companies in the AI sector in India.
+2024-10-21 14:10:34,963 - INFO - Report generation started.
+2024-10-21 14:10:34,963 - INFO - Initialized GoogleSerperAPIWrapper.
+2024-10-21 14:10:34,979 - INFO - Initialized ChatOpenAI model.
+2024-10-21 14:10:34,979 - INFO - Searching for top companies in the AI sector in India.
+2024-10-21 14:11:01,338 - INFO - Report generation started.
+2024-10-21 14:11:01,338 - INFO - Initialized GoogleSerperAPIWrapper.
+2024-10-21 14:11:01,636 - INFO - Initialized ChatOpenAI model.
+2024-10-21 14:11:01,636 - INFO - Searching for top companies in the AI sector in India.
+2024-10-21 14:11:04,349 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 14:11:04,357 - INFO - Found companies: ['HCL Technologies Ltd.', 'Infosys Ltd.', 'Oracle Financial Services Software Ltd.', 'Tech Mahindra Ltd.', 'Tata Consultancy Services Ltd.']
+2024-10-21 14:11:04,357 - INFO - Fetching financial information for HCL Technologies Ltd..
+2024-10-21 14:11:05,541 - INFO - Fetching financial information for Infosys Ltd..
+2024-10-21 14:11:06,620 - INFO - Fetching financial information for Oracle Financial Services Software Ltd..
+2024-10-21 14:11:07,642 - INFO - Fetching financial information for Tech Mahindra Ltd..
+2024-10-21 14:11:08,771 - INFO - Fetching financial information for Tata Consultancy Services Ltd..
+2024-10-21 14:11:09,828 - INFO - Fetching market insights.
+2024-10-21 14:11:18,055 - INFO - Generating report with the model.
+2024-10-21 14:11:52,083 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 14:11:52,180 - INFO - Report generated successfully: reports/output_AI_India_20241021_141152.md
+2024-10-21 14:23:06,265 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 14:23:06,265 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 14:23:06,573 - INFO - Initialized ChatOpenAI model.
+2024-10-21 14:23:06,573 - INFO - Searching for top companies in the Healthcare sector in India.
+2024-10-21 14:29:51,124 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 14:29:51,124 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 14:29:51,440 - INFO - Initialized ChatOpenAI model.
+2024-10-21 14:29:51,440 - INFO - Searching for top companies in the Healthcare sector in India.
+2024-10-21 14:29:53,539 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 14:29:53,539 - INFO - Fetching financial information for Apollo Hospitals.
+2024-10-21 14:29:54,725 - INFO - Fetching financial information for Max Healthcare.
+2024-10-21 14:29:55,939 - INFO - Fetching financial information for Global Health.
+2024-10-21 14:29:57,057 - INFO - Fetching financial information for Fortis Healthcare.
+2024-10-21 14:29:58,290 - INFO - Fetching financial information for Narayana Hrudaya.
+2024-10-21 14:30:07,715 - INFO - Generating report with the model.
+2024-10-21 14:30:38,070 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 14:30:38,137 - INFO - Report generated successfully: reports/output_Healthcare_India_20241021_143038.md
