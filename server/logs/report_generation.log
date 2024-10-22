@@ -1,0 +1,70 @@
+2024-10-21 17:33:11,655 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 17:33:11,655 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 17:33:11,986 - INFO - Initialized ChatOpenAI model.
+2024-10-21 17:33:11,986 - INFO - Searching for top companies in the ai sector in india.
+2024-10-21 17:33:14,399 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 17:33:14,408 - INFO - Fetching financial information for Tata Elxsi.
+2024-10-21 17:33:15,588 - INFO - Fetching financial information for Fractal Analytics.
+2024-10-21 17:33:16,800 - INFO - Fetching financial information for Haptik.
+2024-10-21 17:33:17,979 - INFO - Fetching financial information for Infosys.
+2024-10-21 17:33:18,895 - INFO - Fetching financial information for Persistent Systems.
+2024-10-21 17:33:28,036 - INFO - Generating report with the model.
+2024-10-21 17:34:01,119 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 17:34:01,383 - INFO - Report generated successfully: reports/output_ai_india.md
+2024-10-21 17:36:09,521 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 17:36:09,521 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 17:36:09,836 - INFO - Initialized ChatOpenAI model.
+2024-10-21 17:36:09,836 - INFO - Searching for top companies in the ai sector in india.
+2024-10-21 17:36:12,480 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 17:36:12,502 - INFO - Fetching financial information for Tata Elxsi.
+2024-10-21 17:36:14,429 - INFO - Fetching financial information for Fractal Analytics.
+2024-10-21 17:36:15,875 - INFO - Fetching financial information for Haptik.
+2024-10-21 17:36:16,693 - INFO - Fetching financial information for Infosys.
+2024-10-21 17:36:18,002 - INFO - Fetching financial information for Persistent Systems.
+2024-10-21 17:36:27,302 - INFO - Generating report with the model.
+2024-10-21 17:37:42,164 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 17:37:42,406 - INFO - Report generated successfully: reports/output_ai_india.md
+2024-10-21 17:41:36,385 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 17:41:36,385 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 17:41:36,751 - INFO - Initialized ChatOpenAI model.
+2024-10-21 17:41:36,751 - INFO - Searching for top companies in the ai sector in india.
+2024-10-21 17:41:39,185 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 17:41:39,185 - INFO - Fetching financial information for HCL Technologies Ltd..
+2024-10-21 17:41:40,417 - INFO - Fetching financial information for Infosys Ltd..
+2024-10-21 17:41:41,575 - INFO - Fetching financial information for Oracle Financial Services Software Ltd..
+2024-10-21 17:41:42,511 - INFO - Fetching financial information for Tech Mahindra Ltd..
+2024-10-21 17:41:43,658 - INFO - Fetching financial information for Tata Consultancy Services Ltd..
+2024-10-21 17:41:53,152 - INFO - Generating report with the model.
+2024-10-21 17:54:16,508 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 17:54:16,508 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 17:54:16,834 - INFO - Initialized ChatOpenAI model.
+2024-10-21 17:54:16,834 - INFO - Searching for top companies in the electronics sector in india.
+2024-10-21 17:54:19,179 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 17:54:19,189 - INFO - Fetching financial information for Bajaj Electricals.
+2024-10-21 17:54:20,651 - INFO - Fetching financial information for Voltas.
+2024-10-21 17:54:22,131 - INFO - Fetching financial information for Godrej & Boyce Manufacturing.
+2024-10-21 17:54:23,302 - INFO - Fetching financial information for Bosch.
+2024-10-21 17:54:25,007 - INFO - Fetching financial information for Havells India Ltd.
+2024-10-21 17:54:34,933 - INFO - Generating report with the model.
+2024-10-21 17:55:06,271 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 17:55:06,279 - INFO - Report generated successfully: reports/output_electronics_india.md
+2024-10-21 19:43:27,714 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 19:43:27,714 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 19:43:27,991 - INFO - Initialized ChatOpenAI model.
+2024-10-21 19:43:27,991 - INFO - Searching for top companies in the Fashion sector in India.
+2024-10-21 19:43:30,218 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 19:43:30,218 - INFO - Fetching financial information for Allen Solly.
+2024-10-21 19:43:31,724 - INFO - Fetching financial information for Levi's.
+2024-10-21 19:43:55,920 - INFO - Initialized GoogleSerperAPIWrapper for search.
+2024-10-21 19:43:55,920 - INFO - Initialized GoogleSerperAPIWrapper for news.
+2024-10-21 19:43:56,252 - INFO - Initialized ChatOpenAI model.
+2024-10-21 19:43:56,252 - INFO - Searching for top companies in the healthcare sector in uae.
+2024-10-21 19:43:58,434 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 19:43:58,456 - INFO - Fetching financial information for Abbott.
+2024-10-21 19:43:59,833 - INFO - Fetching financial information for The Cigna Group.
+2024-10-21 19:44:01,068 - INFO - Fetching financial information for Aster DM Healthcare.
+2024-10-21 19:44:02,901 - INFO - Fetching financial information for NMC Health.
+2024-10-21 19:44:04,234 - INFO - Fetching financial information for PureHealth.
+2024-10-21 19:44:16,547 - INFO - Generating report with the model.
+2024-10-21 19:44:53,382 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-10-21 19:44:53,647 - INFO - Report generated successfully: reports/output_healthcare_uae.md
