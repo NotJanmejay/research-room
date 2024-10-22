@@ -7,6 +7,7 @@ import os
 import asyncio
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
 
 
 app = FastAPI()
@@ -20,7 +21,9 @@ app.add_middleware(
 )
 
 STATUS_FILE = "report_status.json"
-REPORTS_DIR = "reports"
+REPORTS_MD_DIR = "reports_md"
+REPORTS_PDF_DIR = "reports_pdf"
+REPORTS_DOCX_DIR = "reports_docx"
 
 # Load or initialize the status file
 if not os.path.exists(STATUS_FILE):
@@ -56,7 +59,7 @@ def _():
 async def generate_report(req: GenerateRequest, background_tasks: BackgroundTasks):
     country = req.country.lower()
     industry = req.industry.lower()
-    report_id = f"{industry}_{country}"
+    report_id = f"{industry}_{country}_{datetime.now().year}"
 
     # Load the current status
     status = load_status()
@@ -108,7 +111,7 @@ async def get_markdown_report(report_id: str):
         return {"status": "not_found", "message": "Report not found."}
 
     if status[report_id] == "completed":
-        report_path = os.path.join(REPORTS_DIR, f"output_{report_id}.md")
+        report_path = os.path.join(REPORTS_MD_DIR, f"{report_id}.md")
         if os.path.exists(report_path):
             return FileResponse(
                 report_path,
@@ -133,12 +136,35 @@ async def get_pdf_report(report_id: str):
 
     if status[report_id] == "completed":
         report_path = os.path.join(
-            REPORTS_DIR, f"output_{report_id}.pdf"
+            REPORTS_PDF_DIR, f"{report_id}.pdf"
         )  # Assuming you save PDF with this naming
         if os.path.exists(report_path):
             return FileResponse(
                 report_path,
                 media_type="application/pdf",
+                filename=os.path.basename(report_path),
+            )
+        else:
+            return {"status": "error", "message": "PDF report file does not exist."}
+
+    return {"status": "error", "message": "Report is not yet completed."}
+
+
+@app.get("/api/report/docx/{report_id}")
+async def get_docx_report(report_id: str):
+    status = load_status()
+
+    if report_id not in status:
+        return {"status": "not_found", "message": "Report not found."}
+
+    if status[report_id] == "completed":
+        report_path = os.path.join(
+            REPORTS_DOCX_DIR, f"{report_id}.docx"
+        )  # Assuming you save PDF with this naming
+        if os.path.exists(report_path):
+            return FileResponse(
+                report_path,
+                media_type="application/docx",
                 filename=os.path.basename(report_path),
             )
         else:
