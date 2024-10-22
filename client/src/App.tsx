@@ -1,10 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
-import { LuPin } from "react-icons/lu";
 import toast from "react-hot-toast";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/esm/Page/TextLayer.css";
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import { IoClose } from "react-icons/io5";
+import { MdOutlineDownload } from "react-icons/md";
 
-import { MdHistory } from "react-icons/md";
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
@@ -37,7 +44,7 @@ function Drawer({
       )}
 
       <motion.div
-        className="fixed top-0 right-0 h-screen bg-white w-[40vw] shadow-lg z-10 max-lg:hidden"
+        className="fixed top-0 right-0 h-screen bg-white w-[40vw] shadow-lg z-10 max-lg:hidden overflow-y-scroll"
         initial={{ x: "100%" }}
         animate={{ x: isOpen ? 0 : "100%" }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -107,25 +114,56 @@ function Skeleton({ className }: { className?: string }) {
   );
 }
 
-function App() {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [industry, setIndustry] = useState("");
-  const [country, setCountry] = useState("");
-  const [_, setReportId] = React.useState<string | null>(null); // Store the report ID
-  const [isLoading, setIsLoading] = React.useState<boolean>(false); // Loading state
-  const [reportContent, setReportContent] = React.useState<string | null>(null);
+function toCamelCase(str: string) {
+  var letter = str[0].toUpperCase();
+  return letter + str.slice(1, str.length);
+}
 
-  function fetchMarkdownReport(reportId: string) {
-    fetch(`${url}/report/markdown/${reportId}`)
+function App() {
+  const [isOpen, setIsOpen] = React.useState<boolean>(false);
+  const [industry, setIndustry] = React.useState("");
+  const [country, setCountry] = React.useState("");
+  const [reportID, setReportId] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [reportContent, setReportContent] = React.useState<string | null>(null);
+  const [prevReports, setPrevReports] = React.useState<string[]>([]);
+  const [currentPDF, setCurrentPDF] = React.useState<any>();
+
+  React.useEffect(() => {
+    fetch(`${url}/report/all`)
+      .then((res) => res.json())
+      .then((data) => setPrevReports(data.files));
+  }, []);
+
+  function displayPDF(r: string) {
+    setIsOpen(true);
+    let report_id = r.split(".")[0];
+
+    fetch(`${url}/report/pdf/${report_id}`)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const pdfUrl = URL.createObjectURL(blob);
+        setCurrentPDF(pdfUrl); // Set the current PDF URL for rendering
+      })
+      .catch((error) => {
+        console.error("Error loading PDF:", error);
+        toast.error("Error loading PDF");
+      });
+  }
+
+  function fetchPDFReport(reportId: string) {
+    fetch(`${url}/report/pdf/${reportId}`)
       .then((response) => {
         if (response.ok) {
-          return response.text();
+          return response.blob();
         } else {
           throw new Error("Failed to fetch report.");
         }
       })
-      .then((markdown) => {
-        setReportContent(markdown);
+      .then((pdf) => {
+        const pdfUrl = URL.createObjectURL(pdf);
+        setReportId(reportId);
+        setCurrentPDF(pdfUrl);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -142,7 +180,7 @@ function App() {
         .then((data) => {
           if (data.status === "completed") {
             clearInterval(intervalId); // Stop polling
-            fetchMarkdownReport(reportId); // Fetch the report content
+            fetchPDFReport(reportId); // Fetch the report content
           } else if (data.status === "not_found") {
             clearInterval(intervalId); // Stop polling if not found
             setIsLoading(false);
@@ -191,6 +229,63 @@ function App() {
       });
   }
 
+  function PDFRender({ pdfUrl }: { pdfUrl: any }) {
+    const [numPages, setNumPages] = React.useState<number | null>(null);
+    const report_id = reportID?.split(".")[0];
+
+    function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+      setNumPages(numPages);
+    }
+
+    const downloadDocx = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/report/docx/${report_id}`,
+          {
+            method: "GET",
+          }
+        );
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${report_id}.docx`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode?.removeChild(link);
+      } catch (error) {
+        console.error("Failed to download DOCX file", error);
+      }
+    };
+
+    return (
+      <div>
+        <div className="flex justify-between">
+          <button
+            className="flex gap-1 items-center "
+            onClick={downloadDocx}
+            title="Download word file"
+          >
+            Download
+            <MdOutlineDownload />
+          </button>
+          <button onClick={() => setIsOpen(false)}>
+            <IoClose />
+          </button>
+        </div>
+        <Document file={pdfUrl} onLoadSuccess={onDocumentLoadSuccess}>
+          {Array.from(new Array(numPages), (_, index) => (
+            <Page
+              key={`page_${index + 1}`}
+              pageNumber={index + 1}
+              scale={1.2}
+            />
+          ))}
+        </Document>
+      </div>
+    );
+  }
+
   return (
     <main className="h-screen grid grid-cols-[14vw_1fr] font-mont relative">
       <aside className="grid grid-rows-[90vh_1fr] border-l max-lg:hidden">
@@ -199,12 +294,24 @@ function App() {
           <div className="mt-8 font-semibold text-xl flex items-center gap-2">
             Reports
           </div>
-          <div className="mt-8 font-bold opacity-75 flex items-center gap-2 mb-2">
-            <LuPin /> Pinned
-          </div>
-          <div className="mt-8 font-bold opacity-75 flex items-center gap-2 mb-2">
-            <MdHistory /> History
-          </div>
+          {prevReports.map((r, idx) => {
+            var fileName = r.split("_");
+            const name = `${toCamelCase(fileName[0])} Industry in ${toCamelCase(
+              fileName[1]
+            )}`;
+            return (
+              <div
+                className="bg-[#efefef] mb-2 px-2 py-1 rounded-md hover:bg-[#dfdfdf] cursor-pointer transition-colors"
+                onClick={() => {
+                  setReportId(r);
+                  displayPDF(r);
+                }}
+                key={idx}
+              >
+                {name}
+              </div>
+            );
+          })}
         </main>
         <main className="border-r flex justify-center items-center">
           <div className="bg-secondary bg-opacity-10 w-56 p-2 rounded-lg text-white flex items-center gap-4">
@@ -300,12 +407,7 @@ function App() {
           </div>
         )}
 
-        {reportContent && (
-          <div className="mt-10 max-lg:hidden">
-            <h2 className="text-2xl font-bold">Generated Report</h2>
-            <pre className="whitespace-pre-wrap">{reportContent}</pre>
-          </div>
-        )}
+        {currentPDF && <PDFRender pdfUrl={currentPDF} />}
       </Drawer>
 
       {/* Mobile Drawer */}

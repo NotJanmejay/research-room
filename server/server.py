@@ -7,6 +7,7 @@ import os
 import asyncio
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
 
 
 app = FastAPI()
@@ -20,7 +21,9 @@ app.add_middleware(
 )
 
 STATUS_FILE = "report_status.json"
-REPORTS_DIR = "reports"
+REPORTS_MD_DIR = "reports_md"
+REPORTS_PDF_DIR = "reports_pdf"
+REPORTS_DOCX_DIR = "reports_docx"
 
 # Load or initialize the status file
 if not os.path.exists(STATUS_FILE):
@@ -56,7 +59,7 @@ def _():
 async def generate_report(req: GenerateRequest, background_tasks: BackgroundTasks):
     country = req.country.lower()
     industry = req.industry.lower()
-    report_id = f"{industry}_{country}"
+    report_id = f"{industry}_{country}_{datetime.now().year}"
 
     # Load the current status
     status = load_status()
@@ -92,6 +95,7 @@ async def generate_report_task(industry, country, report_id):
 
 @app.get("/api/status/{report_id}")
 async def get_report_status(report_id: str):
+    report_id = f"{report_id}"
     status = load_status()
 
     if report_id not in status:
@@ -108,7 +112,7 @@ async def get_markdown_report(report_id: str):
         return {"status": "not_found", "message": "Report not found."}
 
     if status[report_id] == "completed":
-        report_path = os.path.join(REPORTS_DIR, f"output_{report_id}.md")
+        report_path = os.path.join(REPORTS_MD_DIR, f"{report_id}.md")
         if os.path.exists(report_path):
             return FileResponse(
                 report_path,
@@ -133,7 +137,7 @@ async def get_pdf_report(report_id: str):
 
     if status[report_id] == "completed":
         report_path = os.path.join(
-            REPORTS_DIR, f"output_{report_id}.pdf"
+            REPORTS_PDF_DIR, f"{report_id}.pdf"
         )  # Assuming you save PDF with this naming
         if os.path.exists(report_path):
             return FileResponse(
@@ -147,5 +151,32 @@ async def get_pdf_report(report_id: str):
     return {"status": "error", "message": "Report is not yet completed."}
 
 
+@app.get("/api/report/docx/{report_id}")
+async def get_docx_report(report_id: str):
+    status = load_status()
+
+    if report_id not in status:
+        return {"status": "not_found", "message": "Report not found."}
+
+    if status[report_id] == "completed":
+        report_path = os.path.join(REPORTS_DOCX_DIR, f"{report_id}.docx")
+        if os.path.exists(report_path):
+            return FileResponse(
+                report_path,
+                media_type="application/msword",
+                filename=os.path.basename(report_path),
+            )
+        else:
+            return {"status": "error", "message": "DOCX report file does not exist."}
+
+    return {"status": "error", "message": "Report is not yet completed."}
+
+
+@app.get("/api/report/all")
+async def get_all_reports():
+    all_pdfs = os.listdir("reports_pdf")
+    return {"files": all_pdfs}
+
+
 if __name__ == "__main__":
-    uvicorn.run("server:app", port=8000, log_level="info")
+    uvicorn.run("server:app", port=8000, log_level="info", reload=True)

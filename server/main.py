@@ -1,4 +1,3 @@
-import asyncio
 from utils import (
     load_env,
     setup_logging,
@@ -11,8 +10,7 @@ from utils import (
     generate_report,
     save_report,
     convert_markdown_to_docx,
-    add_hyperlink,
-    convert_word_to_pdf
+    convert_word_to_pdf,
 )
 from ResearchRoomPrompt import template
 
@@ -48,11 +46,8 @@ def main(domain, country):
     file_name = save_report(report_content, domain, country)
 
 
-    # Save the report in word file 
-    word_file = convert_markdown_to_docx(report_content,file_name = file_name)
+    # Save the report in word file
+    word_file_path = convert_markdown_to_docx(report_content, file_name=file_name)
 
     # Save the report in PDF File
-    convert_word_to_pdf(word_file)
-
-if __name__ == "__main__":
-    main("Fashion", "India")
+    convert_word_to_pdf(word_file_path)
