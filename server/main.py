@@ -46,11 +46,10 @@ def main(domain, country):
 
     # Save the report to a file
     file_name = save_report(report_content, domain, country)
-    return file_name
-    filename = save_report(report_content, domain, country)
+
 
     # Save the report in word file 
-    word_file = convert_markdown_to_docx(report_content,file_name = filename)
+    word_file = convert_markdown_to_docx(report_content,file_name = file_name)
 
     # Save the report in PDF File
     convert_word_to_pdf(word_file)

@@ -4,7 +4,11 @@ from datetime import datetime
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_community.utilities import GoogleSerperAPIWrapper
-
+from docx import Document
+import re
+from docx2pdf import convert
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
 
 # Load environment variables
 def load_env():
@@ -172,9 +176,34 @@ def convert_markdown_to_docx(markdown_content, file_name):
 
     # Split the markdown content into lines
     lines = markdown_content.splitlines()
+    is_references_section = False
 
     for line in lines:
         line = line.strip()
+
+        # Skip horizontal rules
+        if line.startswith('---'):
+            continue
+
+        # Check for the start of the References Used section
+        if line == "## 11. References Used":
+            is_references_section = True
+            doc.add_heading(line[3:].strip(), level=2)
+            continue
+
+        # If in references section, add URLs as bullet points
+        if is_references_section:
+            # Check if line is empty to end the references section
+            if not line:
+                continue
+
+            # Add the URL as a bullet point
+            url_match = re.search(r'\[(.*?)\]\((https?://[^\s]+)\)', line)
+            if url_match:
+                paragraph = doc.add_paragraph(style='List Bullet')
+                link_text, url = url_match.groups()
+                add_hyperlink(paragraph, link_text, url)
+            continue
 
         # Handle headers and remove asterisks from them
         if line.startswith('# '):
@@ -183,7 +212,7 @@ def convert_markdown_to_docx(markdown_content, file_name):
             doc.add_heading(line[3:].replace('*', '').strip(), level=2)
         elif line.startswith('### '):
             doc.add_heading(line[4:].replace('*', '').strip(), level=3)
-        elif line.startswith('- '):
+        elif line.startswith('- '):  # Handle bullet points
             bullet_text = line[2:]
 
             # Make text bold if it contains asterisks
@@ -197,9 +226,9 @@ def convert_markdown_to_docx(markdown_content, file_name):
                 # Check if the bullet point contains a hyperlink
                 hyperlink_match = re.match(r'\[(.*?)\]\((https?://[^\s]+)\)', bullet_text)
                 if hyperlink_match:
-                    paragraph = doc.add_paragraph(style='List Bullet')
+                    paragraph = doc.add_paragraph(style='Normal')
                     link_text, url = hyperlink_match.groups()
-                    add_hyperlink(paragraph, f"{link_text} ({url})", url)
+                    add_hyperlink(paragraph, link_text, url)  # Use only link text
                 else:
                     doc.add_paragraph(bullet_text, style='List Bullet')
         elif '**' in line:  # Handle bold text
@@ -209,7 +238,6 @@ def convert_markdown_to_docx(markdown_content, file_name):
                 run = paragraph.add_run(part.strip())
                 run.bold = (i % 2 == 1)
         elif line:  # Regular paragraph
-            # Convert URLs to hyperlinks
             paragraph = doc.add_paragraph()
             url_match = re.search(r'(https?://[^\s]+)', line)
             if url_match:
@@ -221,6 +249,38 @@ def convert_markdown_to_docx(markdown_content, file_name):
     # Save the document
     doc.save(output_docx)
     return output_docx
+
+
+
+def process_text_with_hyperlinks(doc, text):
+    """Process text with '[Source: ...]' patterns and add them as hyperlinks."""
+    paragraph = doc.add_paragraph()
+
+    # Regex to find '[Source: ...]' patterns
+    source_pattern = r'\[Source:\s*([^\]]+)\]'
+    parts = re.split(source_pattern, text)
+
+    for i, part in enumerate(parts):
+        if i % 2 == 1:  # This part is the domain inside '[Source: ...]'
+            domain = part.strip()
+            url = f"https://{domain}"
+            add_hyperlink(paragraph, f"Source: {domain}", url)
+        else:
+            # Add regular text
+            part = part.strip()
+            # Regex to find URLs in the text
+            url_matches = re.findall(r'(https?://[^\s]+)', part)
+            if url_matches:
+                # Split part by URLs and add regular text and hyperlinks
+                split_parts = re.split(r'(https?://[^\s]+)', part)
+                for split_part in split_parts:
+                    split_part = split_part.strip()
+                    if split_part and not re.match(r'https?://[^\s]+', split_part):
+                        paragraph.add_run(split_part + " ")  # Add regular text
+                    elif split_part:  # This is a URL
+                        add_hyperlink(paragraph, split_part, split_part)  # Add as hyperlink
+            else:
+                paragraph.add_run(part + " ")  # Add remaining regular text
 
 def add_hyperlink(paragraph, text, url):
     """Add a hyperlink to a paragraph with blue color and underlined text."""
