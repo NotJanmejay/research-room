@@ -154,7 +154,6 @@ def save_report(content, domain, country):
     with open(filename, "w", encoding="utf-8") as file:
         file.write(content)
 
-    logging.info("Report generated successfully: %s", filename)
     return filename
 
 
@@ -260,5 +259,6 @@ def convert_word_to_pdf(word_file_path):
     )
 
     convert(word_file_path, pdf_path)
+    logging.info("Report generated for this session")
 
     return pdf_path

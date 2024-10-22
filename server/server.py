@@ -95,6 +95,7 @@ async def generate_report_task(industry, country, report_id):
 
 @app.get("/api/status/{report_id}")
 async def get_report_status(report_id: str):
+    report_id = f"{report_id}"
     status = load_status()
 
     if report_id not in status:
@@ -158,20 +159,24 @@ async def get_docx_report(report_id: str):
         return {"status": "not_found", "message": "Report not found."}
 
     if status[report_id] == "completed":
-        report_path = os.path.join(
-            REPORTS_DOCX_DIR, f"{report_id}.docx"
-        )  # Assuming you save PDF with this naming
+        report_path = os.path.join(REPORTS_DOCX_DIR, f"{report_id}.docx")
         if os.path.exists(report_path):
             return FileResponse(
                 report_path,
-                media_type="application/docx",
+                media_type="application/msword",
                 filename=os.path.basename(report_path),
             )
         else:
-            return {"status": "error", "message": "PDF report file does not exist."}
+            return {"status": "error", "message": "DOCX report file does not exist."}
 
     return {"status": "error", "message": "Report is not yet completed."}
 
 
+@app.get("/api/report/all")
+async def get_all_reports():
+    all_pdfs = os.listdir("reports_pdf")
+    return {"files": all_pdfs}
+
+
 if __name__ == "__main__":
-    uvicorn.run("server:app", port=8000, log_level="info")
+    uvicorn.run("server:app", port=8000, log_level="info", reload=True)
