@@ -199,12 +199,6 @@ function App() {
           <div className="mt-8 font-semibold text-xl flex items-center gap-2">
             Reports
           </div>
-          <div className="mt-8 font-bold opacity-75 flex items-center gap-2 mb-2">
-            <LuPin /> Pinned
-          </div>
-          <div className="mt-8 font-bold opacity-75 flex items-center gap-2 mb-2">
-            <MdHistory /> History
-          </div>
         </main>
         <main className="border-r flex justify-center items-center">
           <div className="bg-secondary bg-opacity-10 w-56 p-2 rounded-lg text-white flex items-center gap-4">

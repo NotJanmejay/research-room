@@ -1,4 +1,3 @@
-import asyncio
 from utils import (
     load_env,
     setup_logging,
