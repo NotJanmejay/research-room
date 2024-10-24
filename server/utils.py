@@ -323,22 +323,24 @@ def add_hyperlink(paragraph, text, url):
     paragraph._element.append(hyperlink)
 
 
-def convert_markdown_to_docx(markdown_content, file_name):
+def convert_markdown_to_docx(markdown_content, file_name, graphs):
     if not os.path.isdir("reports_docx"):
         os.mkdir("reports_docx")
+    """Convert markdown content to a DOCX file with proper formatting."""
+    report_folder = "report"
+    os.makedirs(report_folder, exist_ok=True)
 
-    base_file_name = file_name.replace("reports_md/", "").replace(".md", "")
-    base_output_docx = os.path.join("reports_docx", base_file_name)
+    base_file_name = file_name.replace("reports/", "").replace(".md", "")
+    base_output_docx = os.path.join(report_folder, base_file_name)
 
     output_docx = f"{base_output_docx}.docx"
     if os.path.exists(output_docx):
-        output_docx = f"{base_output_docx}.docx"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_docx = f"{base_output_docx}_{timestamp}.docx"
 
     doc = Document()
 
     lines = markdown_content.splitlines()
-
-    # Graph Generation pipelines
     graph_json = json.loads(gpt_graph_generation(graph_prompt + markdown_content))
     graph_paths = generate_and_save_graphs(graph_json["graphs"])
 
@@ -407,7 +409,6 @@ def convert_markdown_to_docx(markdown_content, file_name):
                 ].strip()  # Remove the source part from the bullet text
                 paragraph = doc.add_paragraph(style="List Bullet")
                 paragraph.add_run(bullet_text)  # Add the bullet text
-                paragraph.add_run(". ")
 
                 # Add the source as a hyperlink
                 add_hyperlink(paragraph, f"Source: {domain}", f"https://{domain}")
@@ -438,16 +439,17 @@ def convert_markdown_to_docx(markdown_content, file_name):
             paragraph = doc.add_paragraph()
             process_text_with_hyperlinks(paragraph, line)
 
+        # Store graph for the current section if it matches any graph heading
         for heading, path in graph_paths:
             if (
                 heading.lower()
                 == (re.sub(r"[^A-Za-z\s]", "", current_heading).strip()).lower()
                 and heading not in added_graphs
             ):
-                graphs_to_insert.append(path)
-                added_graphs.add(heading)
-                break
-
+                graphs_to_insert.append(path)  # Store the path to insert later
+                added_graphs.add(heading)  # Mark this graph as added
+                break  # Exit after adding the matching graph path
+    # Insert graphs for the last section after processing all lines
     if current_heading:
         insert_graphs_for_heading(doc, graphs_to_insert, graph_paths)
 
