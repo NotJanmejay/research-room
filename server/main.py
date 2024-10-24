@@ -15,6 +15,7 @@ from utils import (
 from ResearchRoomPrompt import template
 
 
+
 def main(domain, country):
     # Load environment and set up logging
     load_env()
@@ -50,3 +51,5 @@ def main(domain, country):
 
     # Save the report in PDF File
     convert_word_to_pdf(word_file_path)
+
+main(domain="Technology", country="India")
