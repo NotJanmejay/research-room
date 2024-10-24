@@ -77,7 +77,8 @@ it's very important for you to cite the resources wherever you are using the dat
 - **Future Outlook**: Offer a forward-looking perspective on the sector and considerations for new entrants.
 
 ### **11. References Used**
-- **Mention all the websites used to generate this report.**
+- **Mention all the websites used to generate this report in bullet point**
+- **Don't mention anything after this section**
 
 --- 
 

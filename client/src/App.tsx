@@ -127,7 +127,7 @@ function App() {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [reportContent, setReportContent] = React.useState<string | null>(null);
   const [prevReports, setPrevReports] = React.useState<string[]>([]);
-  const [currentPDF, setCurrentPDF] = React.useState<any>();
+  const [currentPDF, setCurrentPDF] = React.useState<any>(null);
 
   React.useEffect(() => {
     fetch(`${url}/report/all`)
@@ -199,6 +199,7 @@ function App() {
     setIsOpen(true);
     setIsLoading(true);
     setReportContent(null);
+    setCurrentPDF(null);
 
     fetch(`${url}/generate`, {
       method: "POST",
@@ -287,34 +288,36 @@ function App() {
   }
 
   return (
-    <main className="h-screen grid grid-cols-[14vw_1fr] font-mont relative">
+    <main className="h-screen grid grid-cols-[20vw_1fr] font-mont relative">
       <aside className="grid grid-rows-[90vh_1fr] border-l max-lg:hidden">
         <main className="flex flex-col px-8 pt-8 border-r">
           <img src="/msbc-logo.png" alt="msbc-logo" className="w-44" />
           <div className="mt-8 font-semibold text-xl flex items-center gap-2">
             Reports
           </div>
-          {prevReports.map((r, idx) => {
-            var fileName = r.split("_");
-            const name = `${toCamelCase(fileName[0])} Industry in ${toCamelCase(
-              fileName[1]
-            )}`;
-            return (
-              <div
-                className="bg-[#efefef] mb-2 px-2 py-1 rounded-md hover:bg-[#dfdfdf] cursor-pointer transition-colors"
-                onClick={() => {
-                  setReportId(r);
-                  displayPDF(r);
-                }}
-                key={idx}
-              >
-                {name}
-              </div>
-            );
-          })}
+          {prevReports.length != 0 &&
+            prevReports.map((r, idx) => {
+              var fileName = r.split("_");
+              const name = `${toCamelCase(
+                fileName[0]
+              )} Industry in ${toCamelCase(fileName[1])}`;
+              return (
+                <div
+                  className="bg-[#efefef] mb-2 px-2 py-1 rounded-md hover:bg-[#dfdfdf] cursor-pointer transition-colors"
+                  onClick={() => {
+                    setReportId(r);
+                    displayPDF(r);
+                  }}
+                  key={idx}
+                >
+                  {name}
+                </div>
+              );
+            })}
+          {prevReports.length == 0 && <p>No reports generated</p>}
         </main>
         <main className="border-r flex justify-center items-center">
-          <div className="bg-secondary bg-opacity-10 w-56 p-2 rounded-lg text-white flex items-center gap-4">
+          <div className="bg-secondary bg-opacity-10 w-[90%] p-2 rounded-lg text-white flex items-center gap-4">
             <div className="size-8 rounded-full bg-secondary"></div>
             <div>
               <p className="font-semibold text-black">John Doe</p>

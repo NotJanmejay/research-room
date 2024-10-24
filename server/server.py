@@ -174,6 +174,8 @@ async def get_docx_report(report_id: str):
 
 @app.get("/api/report/all")
 async def get_all_reports():
+    if not os.path.exists("reports_pdf"):
+        return {"files": []}
     all_pdfs = os.listdir("reports_pdf")
     return {"files": all_pdfs}
 
