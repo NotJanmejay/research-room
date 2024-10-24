@@ -10,6 +10,14 @@ from datetime import datetime
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from docx2pdf import convert
+import openai
+from openai import OpenAI
+import json
+import matplotlib.pyplot as plt
+import random
+from docx.shared import Inches
+from GraphPrompt import graph_template
+
 
 
 # Load environment variables
@@ -19,7 +27,7 @@ def load_env():
 
 
 def setup_logging(
-    log_filename=f"logs/report_generation_{datetime.now().strftime("%d%m%y_%H%M")}.log",
+    log_filename=f"logs/report_generation_.log",
 ):
     if not os.path.exists("logs"):
         os.makedirs("logs")
@@ -157,11 +165,103 @@ def save_report(content, domain, country):
     return filename
 
 
+def return_prompt(markdown_content):
+    
+    return graph_template + markdown_content
+
+def gpt_graph_generation(prompt):
+    client = OpenAI(
+        api_key=os.getenv('OPENAI_API_KEY'),
+    )
+
+    completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        model="gpt-4o-mini",
+        response_format={"type": "json_object"},
+    )
+    output = completion.choices[0].message.content
+
+    return output
+
+def generate_and_save_graphs(graphs):
+    """Generate graphs from data, save them with unique names, and return their paths."""
+    # Define color palettes for different graph types
+    bar_palettes = [
+        ['teal', 'steelblue', 'skyblue', 'dodgerblue', 'deepskyblue', 
+         'lightskyblue', 'powderblue', 'cadetblue'],
+        ['#4D4D4D', '#5DA5DA', '#FAA43A', '#60BD68', '#F17CB0'],
+        ['#A6CEE3', '#B2DF8A', '#FDBF6F', '#CAB2D6', '#FF7F00'],
+    ]
+
+    line_palettes = [
+        ['teal', 'seagreen', '#5DA5DA', '#FDBF6F', '#F17CB0'],
+    ]
+
+    pie_palettes = [
+        plt.cm.Set3.colors,
+        plt.cm.Accent.colors,
+        ['#FFB347', '#FF6961', '#FDFD96', '#84B6F4', '#99C140'],
+    ]
+
+    graph_folder = 'graph_images'
+    os.makedirs(graph_folder, exist_ok=True)
+
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    graph_paths = []
+
+    for i, graph in enumerate(graphs):
+        graph_type = graph['type']
+        heading = graph.get('heading', 'Graph')
+        x_values = graph['data']['x_axis']['values']
+        y_values = graph['data']['y_axis']['values']
+        x_label = graph['data']['x_axis']['label']
+        y_label = graph['data']['y_axis']['label']
+
+        # Select a random color palette based on the graph type
+        if graph_type == "Bar Graph":
+            colors = graph.get('colors', random.choice(bar_palettes))
+        elif graph_type == "Line Graph":
+            colors = graph.get('colors', random.choice(line_palettes))
+        elif graph_type == "Pie Chart":
+            colors = graph.get('colors', random.choice(pie_palettes))
+        else:
+            raise ValueError(f"Unsupported graph type: {graph_type}")
+
+        plt.figure()
+
+        if graph_type == "Bar Graph":
+            plt.bar(x_values, y_values, color=colors)
+        elif graph_type == "Line Graph":
+            plt.plot(x_values, y_values, marker='o', color=colors[0])  # Use first color for lines
+        elif graph_type == "Pie Chart":
+            plt.pie(y_values, labels=x_values, autopct='%1.1f%%', colors=colors)
+
+        plt.title(heading)
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+
+        sanitized_heading = heading.replace(' ', '_')
+        filename = f"{graph_folder}/{sanitized_heading}_{timestamp}_{i + 1}.png"
+        plt.savefig(filename)
+        graph_paths.append((heading, filename))
+        plt.close()
+
+    return graph_paths
+
+def graph_generation_pipeline(markdown_content):
+    generate_and_save_graphs(json.loads(gpt_graph_generation(return_prompt(markdown_content)))['graphs'])
+
 def convert_markdown_to_docx(markdown_content, file_name):
-    logging.info("Converting Markdown Report to Word File")
-    report_folder = "reports_docx"
+    """Convert markdown content to a DOCX file with proper formatting."""
+    report_folder = 'report'
     os.makedirs(report_folder, exist_ok=True)
-    base_file_name = file_name.replace("reports_md/", "").replace(".md", "")
+
+    base_file_name = file_name.replace('reports/', '').replace('.md', '')
     base_output_docx = os.path.join(report_folder, base_file_name)
 
     output_docx = f"{base_output_docx}.docx"
@@ -172,28 +272,29 @@ def convert_markdown_to_docx(markdown_content, file_name):
     doc = Document()
 
     lines = markdown_content.splitlines()
+    graph_paths = graph_generation_pipeline(markdown_content)
+
+    current_heading = None
+    added_graphs = set()  # Track added graphs for sections
+    graphs_to_insert = []  # Store graphs to insert later
+
     is_references_section = False
 
     for line in lines:
         line = line.strip()
 
-        # Skip horizontal rules
         if line.startswith('---'):
             continue
 
-        # Check for the start of the References Used section
-        if line == "## 11. References Used":
+        if (line == "## 11. References Used") or (line == "### 11. References Used"):
             is_references_section = True
             doc.add_heading(line[3:].strip(), level=2)
+            doc.add_paragraph()
             continue
 
-        # If in references section, add URLs as bullet points
         if is_references_section:
-            # Check if line is empty to end the references section
             if not line:
                 continue
-
-            # Add the URL as a bullet point
             url_match = re.search(r'\[(.*?)\]\((https?://[^\s]+)\)', line)
             if url_match:
                 paragraph = doc.add_paragraph(style='List Bullet')
@@ -201,111 +302,136 @@ def convert_markdown_to_docx(markdown_content, file_name):
                 add_hyperlink(paragraph, link_text, url)
             continue
 
-        # Handle headers and remove asterisks from them
         if line.startswith('# '):
+            if current_heading:  # Insert graphs for the previous section before moving to a new heading
+                insert_graphs_for_heading(doc, graphs_to_insert, graph_paths)
+            current_heading = line[2:].replace('*', '').strip()
             doc.add_heading(line[2:].replace('*', '').strip(), level=1)
+            graphs_to_insert = []  # Reset the graph list for the new section
         elif line.startswith('## '):
+            if current_heading:  # Insert graphs for the previous section before moving to a new heading
+                insert_graphs_for_heading(doc, graphs_to_insert, graph_paths)
+            current_heading = line[3:].replace('*', '').strip()
             doc.add_heading(line[3:].replace('*', '').strip(), level=2)
+            graphs_to_insert = []  # Reset the graph list for the new section
         elif line.startswith('### '):
+            if current_heading:  # Insert graphs for the previous section before moving to a new heading
+                insert_graphs_for_heading(doc, graphs_to_insert, graph_paths)
+            current_heading = line[4:].replace('*', '').strip()
             doc.add_heading(line[4:].replace('*', '').strip(), level=3)
-        elif line.startswith('- '):  # Handle bullet points
+            graphs_to_insert = []
+        elif line.startswith('- '):
             bullet_text = line[2:]
-            if "*" in bullet_text:
-                paragraph = doc.add_paragraph(style="List Bullet")
-                parts = bullet_text.split("**")
-                for i, part in enumerate(parts):
-                    run = paragraph.add_run(part.strip())
-                    run.bold = i % 2 == 1
+
+            # Check for a source hyperlink at the end of the bullet point
+            source_match = re.search(r'\[Source:\s*([^\]]+)\]', bullet_text)
+            if source_match:
+                domain = source_match.group(1).strip()
+                bullet_text = bullet_text[:source_match.start()].strip()  # Remove the source part from the bullet text
+                paragraph = doc.add_paragraph(style='List Bullet')
+                paragraph.add_run(bullet_text)  # Add the bullet text
+                paragraph.add_run(". ")
+
+                # Add the source as a hyperlink
+                add_hyperlink(paragraph, f"Source: {domain}", f"https://{domain}")
             else:
-                hyperlink_match = re.match(
-                    r"\[(.*?)\]\((https?://[^\s]+)\)", bullet_text
-                )
-                if hyperlink_match:
-                    paragraph = doc.add_paragraph(style='Normal')
-                    link_text, url = hyperlink_match.groups()
-                    add_hyperlink(paragraph, link_text, url)  # Use only link text
+                if '*' in bullet_text:
+                    paragraph = doc.add_paragraph(style='List Bullet')
+                    parts = bullet_text.split('**')
+                    for i, part in enumerate(parts):
+                        run = paragraph.add_run(part.strip())
+                        run.bold = (i % 2 == 1)
                 else:
-                    doc.add_paragraph(bullet_text, style="List Bullet")
-        elif "**" in line:
+                    hyperlink_match = re.match(r'\[(.*?)\]\((https?://[^\s]+)\)', bullet_text)
+                    if hyperlink_match:
+                        link_text, url = hyperlink_match.groups()
+                        paragraph.add_run(" ")
+                        add_hyperlink(paragraph, link_text, url)
+                    else:
+                        doc.add_paragraph(bullet_text, style='List Bullet')
+        elif '**' in line:
             paragraph = doc.add_paragraph()
-            parts = line.split("**")
+            parts = line.split('**')
             for i, part in enumerate(parts):
                 run = paragraph.add_run(part.strip())
                 run.bold = (i % 2 == 1)
-        elif line:  # Regular paragraph
+        elif line:
             paragraph = doc.add_paragraph()
-            url_match = re.search(r"(https?://[^\s]+)", line)
-            if url_match:
-                url = url_match.group(0)
-                add_hyperlink(paragraph, url, url)
-            else:
-                paragraph.add_run(line)
+            process_text_with_hyperlinks(paragraph, line)
+
+        # Store graph for the current section if it matches any graph heading
+        for heading, path in graph_paths:
+            if heading.lower() == (re.sub(r'[^A-Za-z\s]', '', current_heading).strip()).lower() and heading not in added_graphs:
+                graphs_to_insert.append(path)  # Store the path to insert later
+                added_graphs.add(heading)  # Mark this graph as added
+                break  # Exit after adding the matching graph path
+    # Insert graphs for the last section after processing all lines
+    if current_heading:
+        insert_graphs_for_heading(doc, graphs_to_insert, graph_paths)
 
     doc.save(output_docx)
-    logging.info(f"Generated word file at {output_docx}")
     return output_docx
 
 
+def insert_graphs_for_heading(doc, graphs_to_insert, graph_paths):
+    """Insert all stored graphs for the current section into the DOCX and delete them after insertion."""
+    for path in graphs_to_insert:
+        if os.path.exists(path):
+            doc.add_paragraph()  # Add spacing before the graph
+            doc.add_picture(path, width=Inches(4.5))
+            doc.add_paragraph()  # Add spacing after the graph
+            
+            # Delete the graph after insertion
+            try:
+                os.remove(path)
+                print(f"Deleted graph: {path}")
+            except OSError as e:
+                print(f"Error deleting {path}: {e}")
 
-def process_text_with_hyperlinks(doc, text):
-    """Process text with '[Source: ...]' patterns and add them as hyperlinks."""
-    paragraph = doc.add_paragraph()
-
-    # Regex to find '[Source: ...]' patterns
+def process_text_with_hyperlinks(paragraph, text):
     source_pattern = r'\[Source:\s*([^\]]+)\]'
     parts = re.split(source_pattern, text)
 
     for i, part in enumerate(parts):
-        if i % 2 == 1:  # This part is the domain inside '[Source: ...]'
+        if i % 2 == 1:
             domain = part.strip()
             url = f"https://{domain}"
             add_hyperlink(paragraph, f"Source: {domain}", url)
         else:
-            # Add regular text
             part = part.strip()
-            # Regex to find URLs in the text
-            url_matches = re.findall(r'(https?://[^\s]+)', part)
-            if url_matches:
-                # Split part by URLs and add regular text and hyperlinks
-                split_parts = re.split(r'(https?://[^\s]+)', part)
-                for split_part in split_parts:
-                    split_part = split_part.strip()
-                    if split_part and not re.match(r'https?://[^\s]+', split_part):
-                        paragraph.add_run(split_part + " ")  # Add regular text
-                    elif split_part:  # This is a URL
-                        add_hyperlink(paragraph, split_part, split_part)  # Add as hyperlink
-            else:
-                paragraph.add_run(part + " ")  # Add remaining regular text
+            paragraph.add_run(part + ". ")
+
+    url_matches = re.findall(r'(https?://[^\s]+)', text)
+    for url in url_matches:
+        if not re.search(source_pattern, text):
+            add_hyperlink(paragraph, url, url)
 
 def add_hyperlink(paragraph, text, url):
     part = paragraph.part
     r_id = part.relate_to(
-        url,
-        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
-        is_external=True,
+        url, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink', is_external=True
     )
 
-    hyperlink = OxmlElement("w:hyperlink")
-    hyperlink.set(qn("r:id"), r_id)
+    hyperlink = OxmlElement('w:hyperlink')
+    hyperlink.set(qn('r:id'), r_id)
 
-    run = OxmlElement("w:r")
-    rPr = OxmlElement("w:rPr")
+    run = OxmlElement('w:r')
+    rPr = OxmlElement('w:rPr')
 
-    color = OxmlElement("w:color")
-    color.set(qn("w:val"), "0000FF")
+    color = OxmlElement('w:color')
+    color.set(qn('w:val'), '0000FF')
 
-    underline = OxmlElement("w:u")
-    underline.set(qn("w:val"), "single")
+    underline = OxmlElement('w:u')
+    underline.set(qn('w:val'), 'single')
 
     rPr.extend([color, underline])
     run.append(rPr)
 
-    text_element = OxmlElement("w:t")
+    text_element = OxmlElement('w:t')
     text_element.text = text
     run.append(text_element)
     hyperlink.append(run)
     paragraph._element.append(hyperlink)
-
 
 def convert_word_to_pdf(word_file_path):
     logging.info("Converting word file to pdf format")
