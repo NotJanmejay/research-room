@@ -25,13 +25,10 @@ REPORTS_MD_DIR = "reports_md"
 REPORTS_PDF_DIR = "reports_pdf"
 REPORTS_DOCX_DIR = "reports_docx"
 
-# Load or initialize the status file
-if not os.path.exists(STATUS_FILE):
-    with open(STATUS_FILE, "w") as f:
-        json.dump({}, f)
-
 
 def load_status():
+    if not os.path.exists(STATUS_FILE):
+        os.mkdir(STATUS_FILE)
     with open(STATUS_FILE, "r") as f:
         return json.load(f)
 
@@ -52,14 +49,14 @@ class GenerateRequest(BaseModel):
 
 @app.get("/")
 def _():
-    return "Server running on port 8000, endpoints as /api"
+    return "Server running on port 8000, endpoints at /api"
 
 
 @app.post("/api/generate")
 async def generate_report(req: GenerateRequest, background_tasks: BackgroundTasks):
     country = req.country.lower()
     industry = req.industry.lower()
-    report_id = f"{industry}_{country}_{datetime.now().year}"
+    report_id = f"{"_".join(industry.strip().split(" "))}_{"_".join(country.strip().split(" "))}_{datetime.now().year}"
 
     # Load the current status
     status = load_status()
@@ -130,12 +127,14 @@ async def get_markdown_report(report_id: str):
 
 @app.get("/api/report/pdf/{report_id}")
 async def get_pdf_report(report_id: str):
+    #! DEBUG
+    print(report_id)
     status = load_status()
 
-    if report_id not in status:
+    if report_id.lower() not in status:
         return {"status": "not_found", "message": "Report not found."}
 
-    if status[report_id] == "completed":
+    if status[report_id.lower()] == "completed":
         report_path = os.path.join(
             REPORTS_PDF_DIR, f"{report_id}.pdf"
         )  # Assuming you save PDF with this naming

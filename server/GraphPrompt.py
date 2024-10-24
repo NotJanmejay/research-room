@@ -1,7 +1,4 @@
-from langchain_core.prompts import PromptTemplate
-
 graph_prompt = """
-
 Please analyze the following report and generate a JSON file containing graphs that can be plotted using the provided Python function. Follow these instructions carefully:
 
 ---
@@ -144,10 +141,11 @@ Do NOT generate multiple graphs that convey the same information. Try to analyze
 If the data is not sufficient to generate meaningful graphs, you may omit the graph.
 If the data is not up to date or up to the mark, you may omit the graph.
 If there is any ambiguity in the data, you may omit the graph.
+In case of null value, Provide the mean value.
 If there is not enough information to strongly attest the data, you may omit the graph.
+
+Markdown Content below this line
 
 ---
 
 """
-
-graph_template = PromptTemplate.from_template(graph_prompt)

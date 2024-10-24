@@ -179,10 +179,10 @@ function App() {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === "completed") {
-            clearInterval(intervalId); // Stop polling
-            fetchPDFReport(reportId); // Fetch the report content
+            clearInterval(intervalId);
+            fetchPDFReport(reportId);
           } else if (data.status === "not_found") {
-            clearInterval(intervalId); // Stop polling if not found
+            clearInterval(intervalId);
             setIsLoading(false);
           }
         })
@@ -192,7 +192,7 @@ function App() {
           clearInterval(intervalId);
           setIsLoading(false);
         });
-    }, 2000); // Poll every 2 seconds
+    }, 5000);
   }
 
   function handleReportGeneration() {
@@ -297,10 +297,6 @@ function App() {
           </div>
           {prevReports.length != 0 &&
             prevReports.map((r, idx) => {
-              var fileName = r.split("_");
-              const name = `${toCamelCase(
-                fileName[0]
-              )} Industry in ${toCamelCase(fileName[1])}`;
               return (
                 <div
                   className="bg-[#efefef] mb-2 px-2 py-1 rounded-md hover:bg-[#dfdfdf] cursor-pointer transition-colors"
@@ -310,7 +306,7 @@ function App() {
                   }}
                   key={idx}
                 >
-                  {name}
+                  {r}
                 </div>
               );
             })}
