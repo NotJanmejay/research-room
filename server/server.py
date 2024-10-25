@@ -28,7 +28,8 @@ REPORTS_DOCX_DIR = "reports_docx"
 
 def load_status():
     if not os.path.exists(STATUS_FILE):
-        os.mkdir(STATUS_FILE)
+        with open(STATUS_FILE, "w") as file:
+            file.write("{}")
     with open(STATUS_FILE, "r") as f:
         return json.load(f)
 
@@ -56,7 +57,7 @@ def _():
 async def generate_report(req: GenerateRequest, background_tasks: BackgroundTasks):
     country = req.country.lower()
     industry = req.industry.lower()
-    report_id = f"{"_".join(industry.strip().split(" "))}_{"_".join(country.strip().split(" "))}_{datetime.now().year}"
+    report_id = f"{"_".join(industry.strip().split(" "))}___{"_".join(country.strip().split(" "))}_{datetime.now().year}"
 
     # Load the current status
     status = load_status()

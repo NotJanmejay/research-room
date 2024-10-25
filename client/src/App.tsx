@@ -13,14 +13,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url
 ).toString();
 
-function Chip({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-full border px-6 cursor-pointer transition-colors text-secondary py-3 font-medium max-lg:px-4 max-lg:text-sm">
-      {children}
-    </div>
-  );
-}
-
 const url = "http://localhost:8000/api";
 
 function Drawer({
@@ -290,13 +282,21 @@ function App() {
   return (
     <main className="h-screen grid grid-cols-[20vw_1fr] font-mont relative">
       <aside className="grid grid-rows-[90vh_1fr] border-l max-lg:hidden">
-        <main className="flex flex-col px-8 pt-8 border-r">
+        <main className="flex flex-col px-8 pt-8 border-r max-w-[20vw]">
           <img src="/msbc-logo.png" alt="msbc-logo" className="w-44" />
-          <div className="mt-8 font-semibold text-xl flex items-center gap-2">
+          <div className="mt-8 font-semibold text-xl flex items-center gap-2 mb-2">
             Reports
           </div>
           {prevReports.length != 0 &&
             prevReports.map((r, idx) => {
+              const sector = r.split("___")[0];
+              const country = r.split("___")[1];
+
+              const fileName = `${toCamelCase(
+                sector.split("_").join(" ")
+              )} sector in ${toCamelCase(
+                country.split("_").slice(0, -1).join(" ")
+              )}`;
               return (
                 <div
                   className="bg-[#efefef] mb-2 px-2 py-1 rounded-md hover:bg-[#dfdfdf] cursor-pointer transition-colors"
@@ -306,7 +306,7 @@ function App() {
                   }}
                   key={idx}
                 >
-                  {r}
+                  {fileName}
                 </div>
               );
             })}
@@ -339,12 +339,6 @@ function App() {
           <h2 className="mt-16 text-xl font-medium max-lg:mt-12 max-lg:text-base">
             Reports
           </h2>
-          <div className="flex gap-4 mt-2 max-lg:overflow-x-scroll max-lg:w-[90vw] max-lg:pr-6">
-            <Chip>Healthcare</Chip>
-            <Chip>Finance</Chip>
-            <Chip>Clothing</Chip>
-            <Chip>Crypto</Chip>
-          </div>
 
           <div className="flex mt-8 flex-col border w-fit px-8 py-8 rounded-3xl max-lg:w-[92vw]">
             <h2 className=" text-[#212121] text-2xl max-lg:font-bold">

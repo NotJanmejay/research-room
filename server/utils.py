@@ -10,7 +10,6 @@ from datetime import datetime
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from docx2pdf import convert
-import openai
 from openai import OpenAI
 import json
 import matplotlib.pyplot as plt
@@ -155,7 +154,7 @@ def save_report(content, domain: str, country: str):
     domain = "_".join(domain.strip().lower().split(" "))
     country = "_".join(country.strip().lower().split(" "))
 
-    filename = f"reports_md/{domain}_{country}_{datetime.now().year}.md"
+    filename = f"reports_md/{domain}___{country}_{datetime.now().year}.md"
 
     if not os.path.exists("reports_md"):
         os.makedirs("reports_md")
@@ -259,7 +258,7 @@ def generate_and_save_graphs(graphs):
     return graph_paths
 
 
-def insert_graphs_for_heading(doc, graphs_to_insert, graph_paths):
+def insert_graphs_for_heading(doc, graphs_to_insert):
     for path in graphs_to_insert:
         if os.path.exists(path):
             doc.add_paragraph()  # Add spacing before the graph
@@ -285,7 +284,7 @@ def process_text_with_hyperlinks(paragraph, text):
             add_hyperlink(paragraph, f"Source: {domain}", url)
         else:
             part = part.strip()
-            paragraph.add_run(part + ". ")
+            paragraph.add_run(part + " ")
 
     url_matches = re.findall(r"(https?://[^\s]+)", text)
     for url in url_matches:
@@ -323,31 +322,25 @@ def add_hyperlink(paragraph, text, url):
     paragraph._element.append(hyperlink)
 
 
-def convert_markdown_to_docx(markdown_content, file_name, graphs):
+def convert_markdown_to_docx(markdown_content, file_name):
     if not os.path.isdir("reports_docx"):
         os.mkdir("reports_docx")
-    """Convert markdown content to a DOCX file with proper formatting."""
-    report_folder = "report"
-    os.makedirs(report_folder, exist_ok=True)
 
-    base_file_name = file_name.replace("reports/", "").replace(".md", "")
-    base_output_docx = os.path.join(report_folder, base_file_name)
+    report_docx_folder = "reports_docx"
+
+    base_file_name = file_name.split("/")[-1].replace(".md", "")
+    base_output_docx = os.path.join(report_docx_folder, base_file_name)
 
     output_docx = f"{base_output_docx}.docx"
-    if os.path.exists(output_docx):
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_docx = f"{base_output_docx}_{timestamp}.docx"
 
     doc = Document()
-
     lines = markdown_content.splitlines()
     graph_json = json.loads(gpt_graph_generation(graph_prompt + markdown_content))
     graph_paths = generate_and_save_graphs(graph_json["graphs"])
 
     current_heading = None
-    added_graphs = set()  # Track added graphs for sections
-    graphs_to_insert = []  # Store graphs to insert later
-
+    added_graphs = set()
+    graphs_to_insert = []
     is_references_section = False
 
     for line in lines:
@@ -356,73 +349,70 @@ def convert_markdown_to_docx(markdown_content, file_name, graphs):
         if line.startswith("---"):
             continue
 
-        if line in ["## 11. References Used", "### 11. References Used"]:
+        if line == "## 11. References Used":
             is_references_section = True
             doc.add_heading(line[3:].strip(), level=2)
             doc.add_paragraph()
-            continue
 
         if is_references_section:
-            if not line:
-                continue
-            url_match = re.search(r"\[(.*?)\]\((https?://[^\s]+)\)", line)
-            if url_match:
-                paragraph = doc.add_paragraph(style="List Bullet")
-                link_text, url = url_match.groups()
-                add_hyperlink(paragraph, link_text, url)
-            else:
-                paragraph.add_run(line)
+            if line.startswith("- "):
+                bullet_text = line[2:].strip()
+                reference_pattern = r"(.+?)(https?://[^\s]+)"
+                match = re.match(reference_pattern, bullet_text)
+                if match:
+                    ref_text, url = match.groups()
+                    paragraph = doc.add_paragraph(style="List Bullet")
+                    paragraph.add_run(ref_text.strip() + " ")
+                    add_hyperlink(paragraph, url, url)
+                else:
+                    doc.add_paragraph(bullet_text, style="List Bullet")
+            continue
 
         if line.startswith("# "):
-            if (
-                current_heading
-            ):  # Insert graphs for the previous section before moving to a new heading
-                insert_graphs_for_heading(doc, graphs_to_insert, graph_paths)
+            insert_graphs_for_heading(doc, graphs_to_insert)
             current_heading = line[2:].replace("*", "").strip()
-            doc.add_heading(line[2:].replace("*", "").strip(), level=1)
-            graphs_to_insert = []  # Reset the graph list for the new section
-        elif line.startswith("## "):
-            if (
-                current_heading
-            ):  # Insert graphs for the previous section before moving to a new heading
-                insert_graphs_for_heading(doc, graphs_to_insert, graph_paths)
-            current_heading = line[3:].replace("*", "").strip()
-            doc.add_heading(line[3:].replace("*", "").strip(), level=2)
-            graphs_to_insert = []  # Reset the graph list for the new section
-        elif line.startswith("### "):
-            if (
-                current_heading
-            ):  # Insert graphs for the previous section before moving to a new heading
-                insert_graphs_for_heading(doc, graphs_to_insert, graph_paths)
-            current_heading = line[4:].replace("*", "").strip()
-            doc.add_heading(line[4:].replace("*", "").strip(), level=3)
+            doc.add_heading(current_heading, level=1)
             graphs_to_insert = []
-        elif line.startswith("- "):
-            bullet_text = line[2:]
 
-            # Check for a source hyperlink at the end of the bullet point
+        elif line.startswith("## "):
+            insert_graphs_for_heading(doc, graphs_to_insert)
+            current_heading = line[3:].replace("*", "").strip()
+            doc.add_heading(current_heading, level=2)
+            graphs_to_insert = []
+
+        elif line.startswith("### "):
+            insert_graphs_for_heading(doc, graphs_to_insert)
+            current_heading = line[4:].replace("*", "").strip()
+            doc.add_heading(current_heading, level=3)
+            graphs_to_insert = []
+
+        elif line.startswith("- "):
+            bullet_text = line[2:].strip()
+            reference_pattern = r"(.+?)(https?://[^\s]+)"
+            match = re.match(reference_pattern, bullet_text)
+            if match:
+                ref_text, url = match.groups()
+                paragraph = doc.add_paragraph(style="List Bullet")
+                paragraph.add_run(ref_text.strip() + " ")
+                add_hyperlink(paragraph, url, url)
+                continue
+
             source_match = re.search(r"\[Source:\s*([^\]]+)\]", bullet_text)
             if source_match:
                 domain = source_match.group(1).strip()
-                bullet_text = bullet_text[
-                    : source_match.start()
-                ].strip()  # Remove the source part from the bullet text
+                bullet_text = bullet_text[: source_match.start()].strip()
                 paragraph = doc.add_paragraph(style="List Bullet")
-                paragraph.add_run(bullet_text)  # Add the bullet text
-
-                # Add the source as a hyperlink
+                paragraph.add_run(bullet_text)
                 add_hyperlink(paragraph, f"Source: {domain}", f"https://{domain}")
             else:
                 if "*" in bullet_text:
                     paragraph = doc.add_paragraph(style="List Bullet")
                     parts = bullet_text.split("**")
                     for i, part in enumerate(parts):
-                        run = paragraph.add_run(part.strip())
+                        run = paragraph.add_run(part.strip() + " ")
                         run.bold = i % 2 == 1
                 else:
-                    hyperlink_match = re.match(
-                        r"\[(.*?)\]\((https?://[^\s]+)\)", bullet_text
-                    )
+                    hyperlink_match = re.match(r"(.+?)(https?://[^\s]+)", bullet_text)
                     if hyperlink_match:
                         link_text, url = hyperlink_match.groups()
                         paragraph.add_run(" ")
@@ -435,24 +425,22 @@ def convert_markdown_to_docx(markdown_content, file_name, graphs):
             for i, part in enumerate(parts):
                 run = paragraph.add_run(part.strip())
                 run.bold = i % 2 == 1
+
         elif line:
             paragraph = doc.add_paragraph()
             process_text_with_hyperlinks(paragraph, line)
 
-        # Store graph for the current section if it matches any graph heading
         for heading, path in graph_paths:
             if (
                 heading.lower()
-                == (re.sub(r"[^A-Za-z\s]", "", current_heading).strip()).lower()
+                == re.sub(r"[^A-Za-z\s]", "", current_heading).strip().lower()
                 and heading not in added_graphs
             ):
-                graphs_to_insert.append(path)  # Store the path to insert later
-                added_graphs.add(heading)  # Mark this graph as added
-                break  # Exit after adding the matching graph path
-    # Insert graphs for the last section after processing all lines
-    if current_heading:
-        insert_graphs_for_heading(doc, graphs_to_insert, graph_paths)
+                graphs_to_insert.append(path)
+                added_graphs.add(heading)
+                break
 
+    insert_graphs_for_heading(doc, graphs_to_insert)
     doc.save(output_docx)
     return output_docx
 

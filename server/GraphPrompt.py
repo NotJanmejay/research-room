@@ -141,7 +141,7 @@ Do NOT generate multiple graphs that convey the same information. Try to analyze
 If the data is not sufficient to generate meaningful graphs, you may omit the graph.
 If the data is not up to date or up to the mark, you may omit the graph.
 If there is any ambiguity in the data, you may omit the graph.
-In case of null value, Provide the mean value.
+Never provide a null value. In case of null value, provide a mean or median value
 If there is not enough information to strongly attest the data, you may omit the graph.
 
 Markdown Content below this line
